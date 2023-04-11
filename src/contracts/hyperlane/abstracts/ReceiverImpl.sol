@@ -36,6 +36,6 @@ abstract contract ReceiverImpl is IEIP6170, IMessageRecipient, Getter {
         bytes memory data_
     ) public virtual override returns (bool) {
         /// FIXME: add required validations here
-        // require(msg.sender == address(this));
+        require(msg.sender == getMailbox());
     }
 }
