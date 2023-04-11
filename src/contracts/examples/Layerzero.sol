@@ -1,14 +1,14 @@
 /// SPDX-License-Identifier: Apache 3.0
 pragma solidity ^0.8.19;
 
-import {Hyperlane} from "../hyperlane/Hyperlane.sol";
-import {ReceiverImpl} from "../hyperlane/abstracts/ReceiverImpl.sol";
+import {LayerZero} from "../layerzero/LayerZero.sol";
+import {ReceiverImpl} from "../layerzero/abstracts/ReceiverImpl.sol";
 import {IEIP6170} from "../interfaces/IEIP6170.sol";
 
-contract HyperlaneExample is Hyperlane {
+contract LayerZeroExample is LayerZero {
     uint256 public received;
 
-    constructor(address _mailbox) Hyperlane(_mailbox) {}
+    constructor(address _endpoint) LayerZero(_endpoint) {}
 
     function receiveMessage(
         bytes memory chainId_,

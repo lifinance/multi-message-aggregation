@@ -34,10 +34,9 @@ abstract contract ReceiverImpl is IEIP6170, ILayerZeroReceiver, Getter {
         bytes memory sender_,
         bytes memory message_,
         bytes memory data_
-    ) public override returns (bool) {
-        /// note: this is a wrapper & hence the caller should be the address itself
+    ) public virtual override returns (bool) {
         /// @dev function is public to adhere to the EIP
-        require(msg.sender == address(this));
+        require(msg.sender == getEndpoint());
 
         /// @dev can override to do whatever they wish to with the message
         /// @dev can call the pre-determined address with the received data
