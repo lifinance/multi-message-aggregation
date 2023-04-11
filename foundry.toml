@@ -1,0 +1,15 @@
+[profile.default]
+src = 'src/contracts'
+out = 'out'
+test = 'src/test'
+libs = ['lib']
+optimizer = true
+optimizer_runs = 200
+remappings = [
+    'ds-test/=lib/forge-std/lib/ds-test/src/',
+    'forge-std/=lib/forge-std/src/'
+]
+verbosity = 0
+ffi = true
+
+# See more config options https://github.com/foundry-rs/foundry/tree/master/config
