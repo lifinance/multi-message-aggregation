@@ -9,6 +9,8 @@ import {IMessageRecipient} from "../interface/IMessageRecipient.sol";
 /// @dev will use hyperlane's built-in ISM
 /// TODO: Provisions for custom ISM
 abstract contract ReceiverImpl is IEIP6170, IMessageRecipient, Getter {
+    uint256 public received;
+
     /// @dev see IMessageRecipient-{handle}
     function handle(
         uint32 origin_,
@@ -37,8 +39,9 @@ abstract contract ReceiverImpl is IEIP6170, IMessageRecipient, Getter {
     ) public override returns (bool) {
         /// note: this is a wrapper & hence the caller should be the address itself
         /// @dev function is public to adhere to the EIP
-        require(msg.sender == address(this));
+        // require(msg.sender == address(this));
 
         /// @dev can override to do whatever they wish to with the message
+        received = abi.decode(message_, (uint256));
     }
 }
