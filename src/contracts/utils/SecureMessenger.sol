@@ -6,15 +6,16 @@ import {IEIP6170} from "../interfaces/IEIP6170.sol";
 /// @dev contract is designed to support more secure cross-chain messaging
 contract SecureMessenger is IEIP6170 {
     uint256 public quorum;
+    uint256 public msgId;
 
     address[] public bridges;
     address public controller;
 
-    mapping(bytes => bytes) public receivedMessage;
+    mapping(uint256 => bytes) public receivedMessage;
     mapping(bytes => uint256) public receivedMessageQuorum;
 
-    constructor(address controller_) {
-        controller = controller_;
+    constructor() {
+        controller = msg.sender;
     }
 
     /// @dev allows controller to configure the allowed bridge implementations
@@ -44,7 +45,16 @@ contract SecureMessenger is IEIP6170 {
         bytes memory receiver_,
         bytes memory message_,
         bytes memory data_
-    ) external payable override returns (bool) {}
+    ) external payable override returns (bool) {
+        for (uint256 i = 0; i < bridges.length; i++) {
+            IEIP6170(bridges[i]).sendMessage(
+                chainId_,
+                receiver_,
+                message_,
+                data_
+            );
+        }
+    }
 
     /// @dev always receives this call from implementation contracts
     function receiveMessage(
@@ -52,5 +62,23 @@ contract SecureMessenger is IEIP6170 {
         bytes memory sender_,
         bytes memory message_,
         bytes memory data_
-    ) external override returns (bool) {}
+    ) external override returns (bool) {
+        _validate(msg.sender);
+
+        msgId++;
+        receivedMessage[msgId] = message_;
+        receivedMessageQuorum[message_]++;
+
+        /// override to process on arrival
+    }
+
+    function _validate(address _bridge) internal view returns (bool) {
+        for (uint256 i = 0; i < bridges.length; i++) {
+            if (bridges[i] == _bridge) {
+                return true;
+            }
+        }
+
+        revert("INVALID_BRIDGE_CALLER");
+    }
 }

@@ -37,11 +37,11 @@ contract LayerZeroTest is Test {
 
     function setUp() external {
         SRC_FORK_ID = vm.createSelectFork(SRC_CHAIN_RPC, 16400467);
-        src = new LayerZeroExample(SRC_ENDPOINT);
+        src = new LayerZeroExample(SRC_ENDPOINT, address(0));
         helper = new LayerZeroHelper();
 
         DST_FORK_ID = vm.createSelectFork(DST_CHAIN_RPC, 38063686);
-        target = new LayerZeroExample(DST_ENDPOINT);
+        target = new LayerZeroExample(DST_ENDPOINT, address(0));
     }
 
     function testCrossChainMessaging() external {
