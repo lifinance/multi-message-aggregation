@@ -50,11 +50,11 @@ contract HyperlaneTest is Test {
 
     function setUp() external {
         SRC_FORK_ID = vm.createSelectFork(SRC_CHAIN_RPC, 16400467);
-        src = new HyperlaneExample(MAILBOX);
+        src = new HyperlaneExample(MAILBOX, address(0));
         helper = new HyperlaneHelper();
 
         DST_FORK_ID = vm.createSelectFork(DST_CHAIN_RPC, 38063686);
-        target = new HyperlaneExample(MAILBOX);
+        target = new HyperlaneExample(MAILBOX, address(0));
     }
 
     function testCrossChainMessaging() external {

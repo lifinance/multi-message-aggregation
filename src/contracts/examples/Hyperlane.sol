@@ -7,8 +7,11 @@ import {IEIP6170} from "../interfaces/IEIP6170.sol";
 
 contract HyperlaneExample is Hyperlane {
     uint256 public received;
+    address public finalDst;
 
-    constructor(address _mailbox) Hyperlane(_mailbox) {}
+    constructor(address mailbox_, address finalDst_) Hyperlane(mailbox_) {
+        finalDst = finalDst_;
+    }
 
     function receiveMessage(
         bytes memory chainId_,
@@ -18,6 +21,15 @@ contract HyperlaneExample is Hyperlane {
     ) public override(IEIP6170, ReceiverImpl) returns (bool) {
         super.receiveMessage(chainId_, sender_, message_, data_);
 
-        received = abi.decode(message_, (uint256));
+        if (finalDst != address(0)) {
+            IEIP6170(finalDst).receiveMessage(
+                chainId_,
+                sender_,
+                message_,
+                data_
+            );
+        } else {
+            received = abi.decode(message_, (uint256));
+        }
     }
 }
