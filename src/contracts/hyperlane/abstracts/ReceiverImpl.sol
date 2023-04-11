@@ -34,11 +34,8 @@ abstract contract ReceiverImpl is IEIP6170, IMessageRecipient, Getter {
         bytes memory sender_,
         bytes memory message_,
         bytes memory data_
-    ) public override returns (bool) {
-        /// note: this is a wrapper & hence the caller should be the address itself
-        /// @dev function is public to adhere to the EIP
-        require(msg.sender == address(this));
-
-        /// @dev can override to do whatever they wish to with the message
+    ) public virtual override returns (bool) {
+        /// FIXME: add required validations here
+        require(msg.sender == getMailbox());
     }
 }
