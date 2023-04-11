@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 import "forge-std/Test.sol";
 import {HyperlaneHelper} from "pigeon/hyperlane/HyperlaneHelper.sol";
-import {Hyperlane} from "src/contracts/hyperlane/Hyperlane.sol";
+import {HyperlaneExample} from "src/contracts/examples/Hyperlane.sol";
 
 interface IMailbox {
     event Dispatch(
@@ -31,8 +31,8 @@ interface IInterchainGasPaymaster {
 
 contract HyperlaneTest is Test {
     HyperlaneHelper helper;
-    Hyperlane src;
-    Hyperlane target;
+    HyperlaneExample src;
+    HyperlaneExample target;
 
     uint256 SRC_FORK_ID;
     uint256 DST_FORK_ID;
@@ -50,11 +50,11 @@ contract HyperlaneTest is Test {
 
     function setUp() external {
         SRC_FORK_ID = vm.createSelectFork(SRC_CHAIN_RPC, 16400467);
-        src = new Hyperlane(MAILBOX);
+        src = new HyperlaneExample(MAILBOX);
         helper = new HyperlaneHelper();
 
         DST_FORK_ID = vm.createSelectFork(DST_CHAIN_RPC, 38063686);
-        target = new Hyperlane(MAILBOX);
+        target = new HyperlaneExample(MAILBOX);
     }
 
     function testCrossChainMessaging() external {
