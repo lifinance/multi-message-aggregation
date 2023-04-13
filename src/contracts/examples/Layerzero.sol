@@ -1,8 +1,8 @@
 /// SPDX-License-Identifier: Apache 3.0
 pragma solidity ^0.8.19;
 
-import {LayerZero} from "../layerzero/LayerZero.sol";
-import {ReceiverImpl} from "../layerzero/abstracts/ReceiverImpl.sol";
+import {LayerZero} from "../bridges/layerzero/LayerZero.sol";
+import {ReceiverImpl} from "../bridges/layerzero/abstracts/ReceiverImpl.sol";
 import {IEIP6170} from "../interfaces/IEIP6170.sol";
 
 contract LayerZeroExample is LayerZero {

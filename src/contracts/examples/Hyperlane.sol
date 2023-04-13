@@ -1,8 +1,8 @@
 /// SPDX-License-Identifier: Apache 3.0
 pragma solidity ^0.8.19;
 
-import {Hyperlane} from "../hyperlane/Hyperlane.sol";
-import {ReceiverImpl} from "../hyperlane/abstracts/ReceiverImpl.sol";
+import {Hyperlane} from "../bridges/hyperlane/Hyperlane.sol";
+import {ReceiverImpl} from "../bridges/hyperlane/abstracts/ReceiverImpl.sol";
 import {IEIP6170} from "../interfaces/IEIP6170.sol";
 
 contract HyperlaneExample is Hyperlane {

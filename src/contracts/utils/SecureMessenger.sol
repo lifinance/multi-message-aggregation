@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-3.0
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.19;
 
 import {IEIP6170} from "../interfaces/IEIP6170.sol";
 

@@ -1,5 +1,5 @@
 /// SPDX-License-Identifier: Apache-3.0
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.19;
 
 import "forge-std/Test.sol";
 import {LayerZeroHelper} from "pigeon/layerzero/LayerZeroHelper.sol";
