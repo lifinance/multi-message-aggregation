@@ -5,9 +5,7 @@ import {Getter} from "../state/Getter.sol";
 import {IEIP6170} from "../../../interfaces/IEIP6170.sol";
 import {IMessageReceiver} from "../interface/IMessageReceiver.sol";
 
-/// @notice will handle all the message delivery from hyperlane's mailbox
-/// @dev will use hyperlane's built-in ISM
-/// TODO: Provisions for custom ISM
+/// @notice will handle all the message delivery from celer's message bus
 abstract contract ReceiverImpl is IEIP6170, IMessageReceiver, Getter {
     /// @dev see IMessageReceiver-{executeMessage}
     function executeMessage(
