@@ -2,9 +2,11 @@
 pragma solidity ^0.8.19;
 
 import {Errors} from "../utils/Errors.sol";
+
 import {Getter} from "../state/Getter.sol";
 import {IEIP6170} from "../../../interfaces/IEIP6170.sol";
-import {IMessageBus} from "../interface/IMessageBus.sol";
+import {IAxelarGasService} from "../interface/IAxelarGasService.sol";
+import {IAxelarGateway} from "../interface/IAxelarGateway.sol";
 
 abstract contract SenderImpl is IEIP6170, Getter, Errors {
     /// @dev see IEIP6170-{sendMessage}
@@ -14,23 +16,27 @@ abstract contract SenderImpl is IEIP6170, Getter, Errors {
         bytes memory message_,
         bytes memory data_
     ) external payable override returns (bool) {
-        uint64 ambChainId = getChainId(chainId_);
+        string memory ambChainId = getChainId(chainId_);
 
         /// @notice can be used as a mechanism to prevent messaging to chains if app
         /// turns to remove them post deployment
-        if (ambChainId == 0) {
+        if (bytes(ambChainId).length == 0) {
             revert INVALID_RECEIVER_CHAIN();
         }
 
-        /// @notice: no purpose to override gas in celer
+        /// @notice: no purpose to override gas in axelar atm
         /// note: using data to silence unused variable warning
         /// data_ will be for AMBs with custom overrides
         data_;
-        IMessageBus(getMessageBus()).sendMessage{value: msg.value}(
-            abi.decode(receiver_, (address)),
+        IAxelarGateway(getGateway()).callContract(
             ambChainId,
+            string(receiver_),
             message_
         );
+
+        IAxelarGasService(getGasService()).payNativeGasForContractCall{
+            value: msg.value
+        }(address(this), ambChainId, string(receiver_), message_, msg.sender);
         emit MessageSent(receiver_, chainId_, message_, data_);
 
         /// note: redundant return value; using this for now
