@@ -1,0 +1,3 @@
+HyperlaneTest:testCrossChainMessaging() (gas: 114570)
+LayerZeroTest:testCrossChainMessaging() (gas: 261908)
+SecureMessengerTest:testMultiMessageAggregation() (gas: 495865)
