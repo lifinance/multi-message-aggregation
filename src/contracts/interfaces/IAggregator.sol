@@ -60,11 +60,4 @@ interface IAggregator {
     function getSendModuleId(
         address _user
     ) external view returns (uint8 _sendModuleId);
-
-    /// @dev returns the address of any moduleId
-    /// @param _moduleId is the identifier of the module
-    /// @return _moduleAddress is the address of the module
-    function getModuleAddress(
-        uint8 _moduleId
-    ) external view returns (address _moduleAddress);
 }

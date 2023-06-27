@@ -28,4 +28,7 @@ library Error {
 
     /// @dev reverts if module address is zero
     error INVALID_MODULE_ADDRESS();
+
+    /// @dev revert if receiver module address is mismatched
+    error INVALID_RECEIVER_MODULE();
 }

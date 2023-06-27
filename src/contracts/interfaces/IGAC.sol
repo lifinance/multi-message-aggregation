@@ -28,6 +28,13 @@ interface IGAC {
     /// @return _module is the address of the module
     function getModule(uint8 _moduleId) external view returns (address _module);
 
+    /// @dev returns module id for module address
+    /// @param _module is the address of the module
+    /// @return _moduleId is the id of the module
+    function getModuleId(
+        address _module
+    ) external view returns (uint8 _moduleId);
+
     /// @dev returns if the caller is a valid module
     /// @param _module is the address of the module
     /// @return bool indicating the validity of the module

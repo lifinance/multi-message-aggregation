@@ -49,6 +49,13 @@ contract GAC is IGAC, Ownable {
     }
 
     /// @inheritdoc IGAC
+    function getModuleId(
+        address _module
+    ) external view override returns (uint8 _moduleId) {
+        return moduleId[_module];
+    }
+
+    /// @inheritdoc IGAC
     function isModule(address _module) external view override returns (bool) {
         if (moduleId[_module] == 0) {
             return false;
