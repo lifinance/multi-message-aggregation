@@ -6,6 +6,7 @@ import {IModule} from "../interfaces/IModule.sol";
 import {IEIP6170} from "../interfaces/IEIP6170.sol";
 import {LIFIMessage} from "../libraries/Types.sol";
 import {Error} from "../libraries/Error.sol";
+import {IGAC} from "../interfaces/IGAC.sol";
 
 /// @title MultiBridgeAggregation
 /// @dev module contains all the logic to send and receive messages
@@ -15,22 +16,23 @@ contract MultiBridgeAggregation is IModule {
                             STATE VARIABLES
     //////////////////////////////////////////////////////////////*/
     address public immutable aggregator;
+    address public immutable gac;
     uint8 public immutable moduleId;
 
     uint256 public messageCounter;
 
     mapping(address => uint256) public requiredQuorum;
     mapping(address => uint256[]) public messageBridges;
-    mapping(uint256 => address) public bridgeAddresses;
     mapping(bytes => mapping(bytes => uint256)) public reachedQuorum;
     mapping(address => mapping(bytes => bytes)) public allowedRemote;
 
     /*///////////////////////////////////////////////////////////////
                             CONSTRUCTOR
     //////////////////////////////////////////////////////////////*/
-    constructor(address _aggregator, uint8 _moduleId) {
+    constructor(address _aggregator, uint8 _moduleId, address _gac) {
         aggregator = _aggregator;
         moduleId = _moduleId;
+        gac = _gac;
     }
 
     /*///////////////////////////////////////////////////////////////
@@ -90,7 +92,7 @@ contract MultiBridgeAggregation is IModule {
 
         /// FIXME: add validations
         for (uint256 i; i < bridgeIds.length; ) {
-            IEIP6170(bridgeAddresses[bridgeIds[i]]).sendMessage(
+            IEIP6170(IGAC(gac).getBridgeAddress(bridgeIds[i])).sendMessage(
                 _dstChainId,
                 allowedRemote[_user][_dstChainId],
                 abi.encode(messageToBeEncoded),

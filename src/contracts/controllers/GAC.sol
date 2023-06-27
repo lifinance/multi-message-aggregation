@@ -16,6 +16,7 @@ contract GAC is IGAC, Ownable {
 
     mapping(uint8 => address) public module;
     mapping(address => uint8) public moduleId;
+    mapping(uint256 => address) public bridgeAddresses;
 
     /*///////////////////////////////////////////////////////////////
                             EXTERNAL FUNCTIONS
@@ -35,6 +36,14 @@ contract GAC is IGAC, Ownable {
     ) external override onlyOwner {
         module[_moduleId] = _module;
         moduleId[_module] = _moduleId;
+    }
+
+    /// @inheritdoc IGAC
+    function configureNewBridge(
+        uint256 _bridgeId,
+        address _bridgeAddress
+    ) external override onlyOwner {
+        bridgeAddresses[_bridgeId] = _bridgeAddress;
     }
 
     /*///////////////////////////////////////////////////////////////
@@ -73,5 +82,12 @@ contract GAC is IGAC, Ownable {
         }
 
         return true;
+    }
+
+    /// @inheritdoc IGAC
+    function getBridgeAddress(
+        uint256 _bridgeId
+    ) external view returns (address _bridge) {
+        return bridgeAddresses[_bridgeId];
     }
 }

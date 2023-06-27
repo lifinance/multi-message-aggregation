@@ -17,7 +17,7 @@ import {LayerZero} from "../contracts/adapters/layerzero/LayerZero.sol";
 /// @dev supports LayerZero & Hyperlane through Pigeon
 
 /// @dev can inherit the setup in their tests
-contract Setup is Test {
+abstract contract Setup is Test {
     /*///////////////////////////////////////////////////////////////
                             CONSTANT VARIABLES
     //////////////////////////////////////////////////////////////*/
@@ -52,7 +52,7 @@ contract Setup is Test {
                                 SETUP
     //////////////////////////////////////////////////////////////*/
 
-    function setUp() external {
+    function setUp() public virtual {
         /// @dev src chain is Ethereum
         SRC_FORK_ID = vm.createSelectFork(SRC_CHAIN_RPC, 16400467);
         availableForks.push(SRC_FORK_ID);
@@ -62,6 +62,8 @@ contract Setup is Test {
         DST_FORK_ID = vm.createSelectFork(DST_CHAIN_RPC, 38063686);
         availableForks.push(DST_FORK_ID);
         _createContract(DST_FORK_ID, LAYERZERO_POLYGON_ENDPOINT);
+
+        _configureLayerZeroRemotes();
     }
 
     /*///////////////////////////////////////////////////////////////
@@ -85,8 +87,20 @@ contract Setup is Test {
         contractAddress[forkid][abi.encode("MODULE1")] = address(
             new MultiBridgeAggregation(
                 contractAddress[forkid][abi.encode("AGGREGATOR")],
-                1
+                1,
+                contractAddress[forkid][abi.encode("GAC")]
             )
+        );
+
+        /// @dev add module to gac
+        GAC(contractAddress[forkid][abi.encode("GAC")]).configureNewModule(
+            1,
+            contractAddress[forkid][abi.encode("MODULE1")]
+        );
+
+        /// @dev add aggregator to gac
+        GAC(contractAddress[forkid][abi.encode("GAC")]).configureAggregator(
+            contractAddress[forkid][abi.encode("AGGREGATOR")]
         );
 
         /// @dev deploy LayerZero adapter
@@ -94,6 +108,44 @@ contract Setup is Test {
             new LayerZero(
                 lzEndpoint,
                 contractAddress[forkid][abi.encode("GAC")]
+            )
+        );
+
+        /// @dev add new bridge to gac
+        GAC(contractAddress[forkid][abi.encode("GAC")]).configureNewBridge(
+            1,
+            bridgeAdapter[forkid][1]
+        );
+
+        /// @dev initialize both available chains
+        LayerZero(bridgeAdapter[forkid][1]).initializeChain(
+            101,
+            abi.encode("ETHEREUM")
+        );
+        LayerZero(bridgeAdapter[forkid][1]).initializeChain(
+            109,
+            abi.encode("POLYGON")
+        );
+    }
+
+    function _configureLayerZeroRemotes() internal {
+        vm.selectFork(SRC_FORK_ID);
+
+        LayerZero(bridgeAdapter[SRC_FORK_ID][1]).configureTrustedRemote(
+            109,
+            abi.encodePacked(
+                bridgeAdapter[DST_FORK_ID][1],
+                bridgeAdapter[SRC_FORK_ID][1]
+            )
+        );
+
+        vm.selectFork(DST_FORK_ID);
+
+        LayerZero(bridgeAdapter[DST_FORK_ID][1]).configureTrustedRemote(
+            101,
+            abi.encodePacked(
+                bridgeAdapter[SRC_FORK_ID][1],
+                bridgeAdapter[DST_FORK_ID][1]
             )
         );
     }

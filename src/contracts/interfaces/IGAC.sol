@@ -16,6 +16,14 @@ interface IGAC {
     /// @param _aggregator is the address of aggregator
     function configureAggregator(address _aggregator) external;
 
+    /// @dev allows owner to configure the new bridge contract
+    /// @param _bridgeId is the id of bridge
+    /// @param _bridgeAddress is the address of the bridge
+    function configureNewBridge(
+        uint256 _bridgeId,
+        address _bridgeAddress
+    ) external;
+
     /*///////////////////////////////////////////////////////////////
                             READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////*/
@@ -31,6 +39,12 @@ interface IGAC {
     /// @param _moduleId is the id of the module
     /// @return _module is the address of the module
     function getModule(uint8 _moduleId) external view returns (address _module);
+
+    /// @dev returns the bridge address
+    /// @param _bridgeId is the id of the bridge
+    function getBridgeAddress(
+        uint256 _bridgeId
+    ) external view returns (address _bridge);
 
     /// @dev returns module id for module address
     /// @param _module is the address of the module
