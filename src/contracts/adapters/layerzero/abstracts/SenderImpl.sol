@@ -5,6 +5,8 @@ import {Getter} from "../state/Getter.sol";
 import {IEIP6170} from "../../../interfaces/IEIP6170.sol";
 import {ILayerZeroEndpoint} from "../interface/ILayerZeroEndpoint.sol";
 
+/// @title SenderImpl
+/// @dev sends a message from onechain to another using LayerZero
 abstract contract SenderImpl is IEIP6170, Getter {
     /// @dev see IEIP6170-{sendMessage}
     function sendMessage(

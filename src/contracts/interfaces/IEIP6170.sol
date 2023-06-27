@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: Apache-3.0
-
 pragma solidity ^0.8.19;
 
 /// @title Cross-Chain Messaging interface

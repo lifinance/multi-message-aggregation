@@ -4,6 +4,8 @@ pragma solidity ^0.8.19;
 import {Getter} from "../state/Getter.sol";
 import {IEIP6170} from "../../../interfaces/IEIP6170.sol";
 import {ILayerZeroReceiver} from "../interface/ILayerZeroReceiver.sol";
+import {Error} from "../../../libraries/Error.sol";
+import {IModule} from "../../../interfaces/IModule.sol";
 
 /// @notice will handle all the message delivery from layerzero's endpoint
 /// TODO: Improved validations in lzReceive, nonce-based replay protection
@@ -15,17 +17,31 @@ abstract contract ReceiverImpl is IEIP6170, ILayerZeroReceiver, Getter {
         uint64 _nonce,
         bytes calldata _payload
     ) external override {
-        require(msg.sender == getEndpoint());
+        /// @dev caller authentication
+        if (msg.sender != getEndpoint()) {
+            revert Error.NOT_LAYERZERO_ENDPOINT();
+        }
 
-        /// note: implement sender authentication.
-        /// note: casting calldata to memory
+        bytes memory _srcAddressMemory = _srcAddress;
 
-        /// note: src address will be wrapper on the other chain
+        /// @dev sender authentication.
+        if (
+            keccak256(getTrustedRemote(_srcChainId)) !=
+            keccak256(_srcAddressMemory)
+        ) {
+            revert Error.INVALID_SOURCE_SENDER();
+        }
+
+        /// @dev nonce validation.
+        if (getNonceStatus(_nonce)) {
+            revert Error.USED_UNIQUE_ID();
+        }
+
         bytes memory message = _payload;
         bytes memory sender = _srcAddress;
         bytes memory chainId = getEIPChainId(_srcChainId);
 
-        receiveMessage(chainId, sender, message, abi.encodePacked(_nonce));
+        receiveMessage(chainId, sender, message, "");
     }
 
     /// @dev see IEIP6170-{receiveMessage}
@@ -33,14 +49,19 @@ abstract contract ReceiverImpl is IEIP6170, ILayerZeroReceiver, Getter {
     /// note: emit MessageReceived event on successful message delivery
     function receiveMessage(
         bytes memory _chainId,
-        bytes memory _sender,
+        bytes memory,
         bytes memory _message,
-        bytes memory _data
+        bytes memory
     ) public virtual override returns (bool) {
-        /// @dev function is public to adhere to the EIP
-        require(msg.sender == getEndpoint());
+        /// @dev added for more validation
+        if (msg.sender != getEndpoint()) {
+            revert Error.NOT_LAYERZERO_ENDPOINT();
+        }
 
-        /// @dev can override to do whatever they wish to with the message
-        /// @dev can call the pre-determined address with the received data
+        /// @dev calls module after all validations
+        // IModule().receiveMessage(_chainId, _message);
+
+        /// @dev if code reaches here then it is success
+        return true;
     }
 }

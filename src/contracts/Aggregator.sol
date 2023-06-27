@@ -1,23 +1,28 @@
+// SPDX-License-Identifier: Apache-3.0
 pragma solidity ^0.8.19;
 
 import {IAggregator} from "./interfaces/IAggregator.sol";
 import {IModule} from "./interfaces/IModule.sol";
 import {IReceiver} from "./interfaces/IReceiver.sol";
+import {Config, LIFIMessage} from "./libraries/Types.sol";
+import {Error} from "./libraries/Error.sol";
 
+/// @title LIFI Aggregator
+/// @notice aggregates multiple AMB adapters & modules to allow applications to send / receive message
+/// @dev interacts with the modules which in-turn interacts with AMB adapters to send & receive cross-chain messages
 contract LIFIAggregator is IAggregator {
-    uint256 messageCounter;
+    /*///////////////////////////////////////////////////////////////
+                            STATE VARIABLES
+    //////////////////////////////////////////////////////////////*/
+    uint256 public messageCounter;
 
-    struct Config {
-        uint8 sendModuleId;
-        uint8 receiveModuleId;
-    }
+    mapping(address => Config) public userApplicationConfig;
+    mapping(uint8 => address) public module;
+    mapping(address => uint8) public isModule;
 
-    struct LIFIMessage {
-        bytes moduleId;
-        bytes sender;
-        bytes message;
-        bytes uniqueId;
-    }
+    /*///////////////////////////////////////////////////////////////
+                            MODIFIERS
+    //////////////////////////////////////////////////////////////*/
 
     modifier onlyModule() {
         if (isModule[msg.sender] != 0) {
@@ -27,42 +32,57 @@ contract LIFIAggregator is IAggregator {
         _;
     }
 
-    mapping(address => Config) public userApplicationConfig;
-    mapping(uint8 => address) public module;
-    mapping(address => uint8) public isModule;
+    /*///////////////////////////////////////////////////////////////
+                            EXTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
 
-    function setConfig(uint8 _sendeModuleId, uint8 _receiveModuleId) external {
+    /// @inheritdoc IAggregator
+    function setConfig(
+        uint8 _sendModuleId,
+        uint8 _receiveModuleId
+    ) external override {
         userApplicationConfig[msg.sender] = Config(
-            _sendeModuleId,
+            _sendModuleId,
             _receiveModuleId
         );
     }
 
+    /// @inheritdoc IAggregator
     function setModuleConfig(
         uint8 _moduleId,
         uint8 _configType,
         bytes memory _config
-    ) external {
+    ) external override {
         IModule m = IModule(module[_moduleId]);
         m.setConfig(_configType, _config, msg.sender);
     }
 
+    /// @inheritdoc IAggregator
     function xSend(
         bytes memory _dstChainId,
         bytes memory _message,
         bytes memory _extraData
     ) external payable override {
-        uint8 moduleId = getSendModuleId(msg.sender);
+        ++messageCounter;
 
+        /// @dev get user configured module
+        uint8 moduleId = getSendModuleId(msg.sender);
         IModule m = IModule(module[moduleId]);
 
-        ++messageCounter;
+        /// @dev validate module
+        if (address(m) == address(0)) {
+            revert Error.INVALID_MODULE_ADDRESS();
+        }
+
+        /// @dev construct LIFI message
         LIFIMessage memory encodedMessage = LIFIMessage(
             abi.encode(moduleId),
             abi.encode(msg.sender),
             _message,
             abi.encode(messageCounter)
         );
+
+        /// @dev send message through user configured module
         m.sendMessage(
             _dstChainId,
             abi.encode(encodedMessage),
@@ -71,29 +91,29 @@ contract LIFIAggregator is IAggregator {
         );
     }
 
+    /// @inheritdoc IAggregator
     function xReceive(
         bytes memory _srcChainId,
-        address _receiver,
         bytes memory _message
-    ) external override onlyModule {
-        if (getReceiveModuleId(_receiver) != isModule[msg.sender]) {
-            revert("INVALID_MODULE");
-        }
-        /// @dev call user application.xReceive()
-        IReceiver(_receiver).xReceive(_srcChainId, _message);
-    }
+    ) external override onlyModule {}
 
+    /*///////////////////////////////////////////////////////////////
+                            READ-ONLY FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc IAggregator
     function getSendModuleId(
         address _user
-    ) public view returns (uint8 _sendModule) {
+    ) public view override returns (uint8 _sendModule) {
         Config memory config = userApplicationConfig[_user];
 
         _sendModule = config.sendModuleId;
     }
 
+    /// @inheritdoc IAggregator
     function getReceiveModuleId(
         address _user
-    ) public view returns (uint8 _receiveModule) {
+    ) public view override returns (uint8 _receiveModule) {
         Config memory config = userApplicationConfig[_user];
 
         _receiveModule = config.receiveModuleId;

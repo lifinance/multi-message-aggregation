@@ -1,6 +1,8 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.19;
 
+/// @dev imported from LayerZero
+/// MORE_INFO: https://layerzero.gitbook.io/docs/evm-guides/interfaces/evm-solidity-interfaces/ilayerzeroreceiver
 interface ILayerZeroReceiver {
     // @notice LayerZero endpoint will invoke this function to deliver the message on the destination
     // @param _srcChainId - the source endpoint identifier
