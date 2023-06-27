@@ -22,30 +22,30 @@ interface IEIP6170 {
     event MessageReceived(bytes from, bytes fromChainId, bytes message);
 
     /// @dev Sends a message to a receiving address on a different blockchain.
-    /// @param chainId_ is the unique identifier of receiving blockchain.
-    /// @param receiver_ is the address of the receiver.
-    /// @param message_ is the arbitrary message to be delivered.
-    /// @param data_ is a bridge-specific encoded data for off-chain relayer infrastructure.
+    /// @param _chainId is the unique identifier of receiving blockchain.
+    /// @param _receiver is the address of the receiver.
+    /// @param _message is the arbitrary message to be delivered.
+    /// @param _data is a bridge-specific encoded data for off-chain relayer infrastructure.
     /// @return the status of the process on the sending chain.
     /// Note: this function is designed to support both evm and non-evm chains
     /// Note: proposing chain-ids be the bytes encoding their native token name string. For eg., abi.encode("ETH"), abi.encode("SOL") imagining they cannot override.
     function sendMessage(
-        bytes memory chainId_,
-        bytes memory receiver_,
-        bytes memory message_,
-        bytes memory data_
+        bytes memory _chainId,
+        bytes memory _receiver,
+        bytes memory _message,
+        bytes memory _data
     ) external payable returns (bool);
 
     /// @dev Receives a message from a sender on a different blockchain.
-    /// @param chainId_ is the unique identifier of the sending blockchain.
-    /// @param sender_ is the address of the sender.
-    /// @param message_ is the arbitrary message sent by the sender.
+    /// @param _chainId is the unique identifier of the sending blockchain.
+    /// @param _sender is the address of the sender.
+    /// @param _message is the arbitrary message sent by the sender.
     /// @return the status of message processing/storage.
     /// Note: sender validation (or) message validation should happen before processing the message.
     function receiveMessage(
-        bytes memory chainId_,
-        bytes memory sender_,
-        bytes memory message_,
-        bytes memory data_
+        bytes memory _chainId,
+        bytes memory _sender,
+        bytes memory _message,
+        bytes memory _data
     ) external returns (bool);
 }
