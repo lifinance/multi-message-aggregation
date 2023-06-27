@@ -18,21 +18,21 @@ contract GAC is IGAC, Ownable {
     mapping(address => uint8) public moduleId;
 
     /*///////////////////////////////////////////////////////////////
-                            CONSTRUCTOR
-    //////////////////////////////////////////////////////////////*/
-    constructor(address _aggregator) {
-        aggregator = _aggregator;
-    }
-
-    /*///////////////////////////////////////////////////////////////
                             EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc IGAC
+    function configureAggregator(
+        address _aggregator
+    ) external override onlyOwner {
+        aggregator = _aggregator;
+    }
 
     /// @inheritdoc IGAC
     function configureNewModule(
         uint8 _moduleId,
         address _module
-    ) external override {
+    ) external override onlyOwner {
         module[_moduleId] = _module;
         moduleId[_module] = _moduleId;
     }

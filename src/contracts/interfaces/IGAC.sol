@@ -12,6 +12,10 @@ interface IGAC {
     /// @dev _module is the address of the module
     function configureNewModule(uint8 _moduleId, address _module) external;
 
+    /// @dev allows owner to configure the aggregator contract
+    /// @param _aggregator is the address of aggregator
+    function configureAggregator(address _aggregator) external;
+
     /*///////////////////////////////////////////////////////////////
                             READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////*/
