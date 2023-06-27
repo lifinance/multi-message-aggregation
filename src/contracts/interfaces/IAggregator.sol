@@ -19,9 +19,14 @@ interface IAggregator {
 
     /// @dev handles delivering messages from modules to user application
     /// @param _srcChainId is the chain id from which the message is sent
+    /// @param _receiver is the address of the receiver
     /// @param _message is the LIFI encoded message with more details before delivery
     /// note: can only be called by registered modules
-    function xReceive(bytes memory _srcChainId, bytes memory _message) external;
+    function xReceive(
+        bytes memory _srcChainId,
+        address _receiver,
+        bytes memory _message
+    ) external;
 
     /// @dev allows user applications to configure their default send and receive modules
     /// @param _sendModuleId is the id of the send module
@@ -55,4 +60,11 @@ interface IAggregator {
     function getSendModuleId(
         address _user
     ) external view returns (uint8 _sendModuleId);
+
+    /// @dev returns the address of any moduleId
+    /// @param _moduleId is the identifier of the module
+    /// @return _moduleAddress is the address of the module
+    function getModuleAddress(
+        uint8 _moduleId
+    ) external view returns (address _moduleAddress);
 }

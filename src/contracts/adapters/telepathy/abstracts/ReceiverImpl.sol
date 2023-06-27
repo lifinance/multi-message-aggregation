@@ -19,7 +19,7 @@ abstract contract ReceiverImpl is IEIP6170, ITelepathyHandler, Getter {
         /// note: casting calldata to memory
         bytes memory message = _data;
         bytes memory sender = abi.encode(_sourceAddress);
-        bytes memory chainId = getEIPChainId(_sourceChainId);
+        bytes memory chainId = getLIFIChainId(_sourceChainId);
 
         receiveMessage(chainId, sender, message, bytes(""));
 

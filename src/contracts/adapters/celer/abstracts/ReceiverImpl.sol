@@ -20,7 +20,7 @@ abstract contract ReceiverImpl is IEIP6170, IMessageReceiver, Getter {
         /// note: casting calldata to memory
         bytes memory message = _message;
         bytes memory sender = abi.encode(_srcContract);
-        bytes memory chainId = getEIPChainId(_srcChainId);
+        bytes memory chainId = getLIFIChainId(_srcChainId);
 
         receiveMessage(chainId, sender, message, bytes(""));
         return ExecutionStatus.Success;

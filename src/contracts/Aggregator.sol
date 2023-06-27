@@ -4,7 +4,7 @@ pragma solidity ^0.8.19;
 import {IAggregator} from "./interfaces/IAggregator.sol";
 import {IModule} from "./interfaces/IModule.sol";
 import {IReceiver} from "./interfaces/IReceiver.sol";
-import {Config, LIFIMessage} from "./libraries/Types.sol";
+import {Config} from "./libraries/Types.sol";
 import {Error} from "./libraries/Error.sol";
 
 /// @title LIFI Aggregator
@@ -14,8 +14,6 @@ contract LIFIAggregator is IAggregator {
     /*///////////////////////////////////////////////////////////////
                             STATE VARIABLES
     //////////////////////////////////////////////////////////////*/
-    uint256 public messageCounter;
-
     mapping(address => Config) public userApplicationConfig;
     mapping(uint8 => address) public module;
     mapping(address => uint8) public isModule;
@@ -63,8 +61,6 @@ contract LIFIAggregator is IAggregator {
         bytes memory _message,
         bytes memory _extraData
     ) external payable override {
-        ++messageCounter;
-
         /// @dev get user configured module
         uint8 moduleId = getSendModuleId(msg.sender);
         IModule m = IModule(module[moduleId]);
@@ -74,32 +70,27 @@ contract LIFIAggregator is IAggregator {
             revert Error.INVALID_MODULE_ADDRESS();
         }
 
-        /// @dev construct LIFI message
-        LIFIMessage memory encodedMessage = LIFIMessage(
-            abi.encode(moduleId),
-            abi.encode(msg.sender),
-            _message,
-            abi.encode(messageCounter)
-        );
-
         /// @dev send message through user configured module
-        m.sendMessage(
-            _dstChainId,
-            abi.encode(encodedMessage),
-            _extraData,
-            msg.sender
-        );
+        m.sendMessage(_dstChainId, _message, _extraData, msg.sender);
     }
 
     /// @inheritdoc IAggregator
     function xReceive(
         bytes memory _srcChainId,
+        address _receiver,
         bytes memory _message
     ) external override onlyModule {}
 
     /*///////////////////////////////////////////////////////////////
                             READ-ONLY FUNCTIONS
     //////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc IAggregator
+    function getModuleAddress(
+        uint8 _moduleId
+    ) external view returns (address _moduleAddress) {
+        return module[_moduleId];
+    }
 
     /// @inheritdoc IAggregator
     function getSendModuleId(

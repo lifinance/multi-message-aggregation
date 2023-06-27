@@ -5,12 +5,10 @@ import {Getter} from "../state/Getter.sol";
 import {IEIP6170} from "../../../interfaces/IEIP6170.sol";
 import {ILayerZeroReceiver} from "../interface/ILayerZeroReceiver.sol";
 import {Error} from "../../../libraries/Error.sol";
-import {IModule} from "../../../interfaces/IModule.sol";
 
-/// @notice will handle all the message delivery from layerzero's endpoint
-/// TODO: Improved validations in lzReceive, nonce-based replay protection
+/// @notice will handle all the message delivery from LayerZero's endpoint
 abstract contract ReceiverImpl is IEIP6170, ILayerZeroReceiver, Getter {
-    /// @dev see ILayerZeroReceiver-{lzReceive}
+    /// @inheritdoc ILayerZeroReceiver
     function lzReceive(
         uint16 _srcChainId,
         bytes calldata _srcAddress,
@@ -39,7 +37,7 @@ abstract contract ReceiverImpl is IEIP6170, ILayerZeroReceiver, Getter {
 
         bytes memory message = _payload;
         bytes memory sender = _srcAddress;
-        bytes memory chainId = getEIPChainId(_srcChainId);
+        bytes memory chainId = getLIFIChainId(_srcChainId);
 
         receiveMessage(chainId, sender, message, "");
     }
@@ -52,16 +50,5 @@ abstract contract ReceiverImpl is IEIP6170, ILayerZeroReceiver, Getter {
         bytes memory,
         bytes memory _message,
         bytes memory
-    ) public virtual override returns (bool) {
-        /// @dev added for more validation
-        if (msg.sender != getEndpoint()) {
-            revert Error.NOT_LAYERZERO_ENDPOINT();
-        }
-
-        /// @dev calls module after all validations
-        // IModule().receiveMessage(_chainId, _message);
-
-        /// @dev if code reaches here then it is success
-        return true;
-    }
+    ) public virtual returns (bool) {}
 }

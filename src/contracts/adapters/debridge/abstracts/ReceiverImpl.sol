@@ -24,7 +24,9 @@ abstract contract ReceiverImpl is IEIP6170, IDeBridgeReceiver, Getter {
         /// note: casting calldata to memory
         bytes memory message = _data;
         bytes memory sender = abi.encode(_multiMessageSender);
-        bytes memory chainId = getEIPChainId(callProxy.submissionChainIdFrom());
+        bytes memory chainId = getLIFIChainId(
+            callProxy.submissionChainIdFrom()
+        );
 
         receiveMessage(chainId, sender, message, bytes(""));
     }

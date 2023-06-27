@@ -8,6 +8,10 @@ import {Error} from "../../libraries/Error.sol";
 import {IGAC} from "../../interfaces/IGAC.sol";
 import {ILayerZeroEndpoint} from "./interface/ILayerZeroEndpoint.sol";
 import {ILayerZeroUserApplicationConfig} from "./interface/ILayerZeroUserApplicationConfig.sol";
+import {LIFIMessage} from "../../libraries/Types.sol";
+import {IModule} from "../../interfaces/IModule.sol";
+import {IEIP6170} from "../../interfaces/IEIP6170.sol";
+import {IAggregator} from "../../interfaces/IAggregator.sol";
 
 /// @title LayerZero
 /// @dev adapter contract for exposing LayerZero AMB in a wrapped EIP6170 Interface
@@ -22,7 +26,7 @@ contract LayerZero is
     //////////////////////////////////////////////////////////////*/
 
     modifier onlyGAC() {
-        if (msg.sender != IGAC(getGac()).owner()) {
+        if (!IGAC(getGac()).isCallerOwner(msg.sender)) {
             revert Error.INVALID_PREVILAGED_CALLER();
         }
         _;
@@ -36,6 +40,39 @@ contract LayerZero is
     constructor(address _endpoint, address _gac) {
         setEndpoint(_endpoint);
         setGac(_gac);
+    }
+
+    /*///////////////////////////////////////////////////////////////
+                            EXTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
+
+    function receiveMessage(
+        bytes memory _chainId,
+        bytes memory,
+        bytes memory _message,
+        bytes memory
+    ) public override(IEIP6170, ReceiverImpl) returns (bool) {
+        /// @dev added for more validation
+        if (msg.sender != getEndpoint()) {
+            revert Error.NOT_LAYERZERO_ENDPOINT();
+        }
+
+        /// @dev decode LIFI message
+        LIFIMessage memory decodedMessage = abi.decode(_message, (LIFIMessage));
+        address module = IGAC(getGac()).getModule(
+            abi.decode(decodedMessage.moduleId, (uint8))
+        );
+
+        /// @dev validates module (assumption: module id sent is receiving module id on dst chain)
+        if (module == address(0)) {
+            revert Error.INVALID_MODULE_ADDRESS();
+        }
+
+        /// @dev calls module after all validations
+        IModule(module).receiveMessage(_chainId, _message);
+
+        /// @dev if code reaches here then it is success
+        return true;
     }
 
     /*///////////////////////////////////////////////////////////////

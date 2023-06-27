@@ -21,7 +21,7 @@ contract Getter is State {
     }
 
     /// @dev retrieves the eip specific chain id
-    function getEIPChainId(
+    function getLIFIChainId(
         string memory _ambChainId
     ) public view returns (bytes memory) {
         return _state.eipChainId[_ambChainId];

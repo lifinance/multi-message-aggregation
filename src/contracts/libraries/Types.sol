@@ -12,6 +12,7 @@ struct Config {
 struct LIFIMessage {
     bytes moduleId;
     bytes sender;
+    bytes receiver;
     bytes message;
     bytes uniqueId;
 }

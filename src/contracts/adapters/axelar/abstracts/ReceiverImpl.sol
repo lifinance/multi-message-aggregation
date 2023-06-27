@@ -21,7 +21,7 @@ abstract contract ReceiverImpl is IEIP6170, IAxelarExecutable, Getter {
         /// note: casting calldata to memory
         bytes memory message = _payload;
         bytes memory sender = abi.encode(_sourceAddress);
-        bytes memory chainId = getEIPChainId(_sourceChain);
+        bytes memory chainId = getLIFIChainId(_sourceChain);
 
         receiveMessage(chainId, sender, message, bytes(""));
     }
