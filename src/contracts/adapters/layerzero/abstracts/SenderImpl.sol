@@ -11,12 +11,16 @@ abstract contract SenderImpl is IEIP6170, Getter {
     /// @dev see IEIP6170-{sendMessage}
     function sendMessage(
         bytes memory _chainId,
-        bytes memory _receiver,
+        bytes memory,
         bytes memory _message,
         bytes memory _data
     ) external payable override returns (bool) {
+        /// @dev receiver is always the adapter of LayerZero On Dst Chain
+        uint16 lzChainId = getChainId(_chainId);
+        bytes memory _receiver = getTrustedRemote(lzChainId);
+
         ILayerZeroEndpoint(getEndpoint()).send{value: msg.value}(
-            getChainId(_chainId),
+            lzChainId,
             _receiver,
             _message,
             payable(tx.origin), /// @dev refund address if set to the msg sender

@@ -81,7 +81,6 @@ contract MultiBridgeAggregation is IModule {
         uint256[] memory bridgeIds = messageBridges[_user];
         bytes memory receiver = allowedRemote[_user][_dstChainId];
 
-        console.logBytes(receiver);
         /// @dev increment messages sent via module
         ++messageCounter;
 
@@ -119,13 +118,25 @@ contract MultiBridgeAggregation is IModule {
         /// @dev decode LIFI message
         LIFIMessage memory decodedMessage = abi.decode(_message, (LIFIMessage));
 
-        address receiverAddress = abi.decode(
-            decodedMessage.receiver,
-            (address)
-        );
+        bytes memory packedRemote = decodedMessage.receiver;
+
+        address receiverAddress;
+        address senderAddress;
+
+        assembly {
+            receiverAddress := mload(add(packedRemote, 0x14))
+        }
+
+        bytes memory packedLocalRemote = allowedRemote[receiverAddress][
+            _srcChainId
+        ];
+
+        assembly {
+            senderAddress := mload(add(packedLocalRemote, 0x14))
+        }
 
         if (
-            keccak256(allowedRemote[receiverAddress][_srcChainId]) !=
+            keccak256(abi.encode(senderAddress)) !=
             keccak256(decodedMessage.sender)
         ) {
             revert Error.INVALID_SOURCE_SENDER();
