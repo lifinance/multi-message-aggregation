@@ -8,6 +8,8 @@ import {LIFIMessage} from "../libraries/Types.sol";
 import {Error} from "../libraries/Error.sol";
 import {IGAC} from "../interfaces/IGAC.sol";
 
+import "forge-std/console.sol";
+
 /// @title MultiBridgeAggregation
 /// @dev module contains all the logic to send and receive messages
 /// through multiple AMBs
@@ -75,9 +77,11 @@ contract MultiBridgeAggregation is IModule {
         bytes memory _message,
         bytes memory _extraData,
         address _user
-    ) external override {
+    ) external payable override {
         uint256[] memory bridgeIds = messageBridges[_user];
         bytes memory receiver = allowedRemote[_user][_dstChainId];
+
+        console.logBytes(receiver);
         /// @dev increment messages sent via module
         ++messageCounter;
 
@@ -92,7 +96,9 @@ contract MultiBridgeAggregation is IModule {
 
         /// FIXME: add validations
         for (uint256 i; i < bridgeIds.length; ) {
-            IEIP6170(IGAC(gac).getBridgeAddress(bridgeIds[i])).sendMessage(
+            IEIP6170(IGAC(gac).getBridgeAddress(bridgeIds[i])).sendMessage{
+                value: msg.value
+            }(
                 _dstChainId,
                 allowedRemote[_user][_dstChainId],
                 abi.encode(messageToBeEncoded),

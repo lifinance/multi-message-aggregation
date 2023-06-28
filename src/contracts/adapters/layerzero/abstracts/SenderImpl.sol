@@ -15,11 +15,11 @@ abstract contract SenderImpl is IEIP6170, Getter {
         bytes memory _message,
         bytes memory _data
     ) external payable override returns (bool) {
-        ILayerZeroEndpoint(getEndpoint()).send(
+        ILayerZeroEndpoint(getEndpoint()).send{value: msg.value}(
             getChainId(_chainId),
             _receiver,
             _message,
-            payable(msg.sender), /// @dev refund address if set to the msg sender
+            payable(tx.origin), /// @dev refund address if set to the msg sender
             address(0), /// @dev should expand to use zro tokens
             _data
         );

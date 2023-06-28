@@ -4,6 +4,8 @@ pragma solidity 0.8.19;
 import {Setup} from "../Setup.t.sol";
 import {LIFIAggregator} from "../../contracts/Aggregator.sol";
 
+import "forge-std/console.sol";
+
 contract MultiBridgeAggregationTest is Setup {
     function setUp() public override {
         super.setUp();
@@ -24,6 +26,21 @@ contract MultiBridgeAggregationTest is Setup {
             .setModuleConfig(1, 2, abi.encode(bridges));
 
         LIFIAggregator(contractAddress[SRC_FORK_ID][abi.encode("AGGREGATOR")])
-            .xSend(abi.encode("POLYGON"), abi.encode("1"), abi.encode(""));
+            .setModuleConfig(
+                1,
+                3,
+                abi.encode(
+                    abi.encodePacked(
+                        bridgeAdapter[DST_FORK_ID][1],
+                        bridgeAdapter[SRC_FORK_ID][1]
+                    ),
+                    abi.encode("POLYGON")
+                )
+            );
+
+        console.logBytes(abi.encode(bridgeAdapter[DST_FORK_ID][1]));
+
+        LIFIAggregator(contractAddress[SRC_FORK_ID][abi.encode("AGGREGATOR")])
+            .xSend{value: 1 ether}(abi.encode("POLYGON"), abi.encode("1"), "");
     }
 }

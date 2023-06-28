@@ -79,7 +79,12 @@ contract LIFIAggregator is IAggregator {
         }
 
         /// @dev send message through user configured module
-        m.sendMessage(_dstChainId, _message, _extraData, msg.sender);
+        m.sendMessage{value: msg.value}(
+            _dstChainId,
+            _message,
+            _extraData,
+            msg.sender
+        );
     }
 
     /// @inheritdoc IAggregator

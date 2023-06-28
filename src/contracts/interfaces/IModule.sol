@@ -30,7 +30,7 @@ interface IModule {
         bytes memory _message,
         bytes memory _extraData,
         address _user
-    ) external;
+    ) external payable;
 
     /// @dev allows module to receive message from amb adapters
     /// @param _srcChainId is the LIFI allocated chain id of the sending chain
