@@ -34,4 +34,11 @@ library Error {
 
     /// @dev revert if receiver module address is mismatched
     error INVALID_RECEIVER_MODULE();
+
+    /*///////////////////////////////////////////////////////////////
+                    ERROR CODES FOR MODULE
+    //////////////////////////////////////////////////////////////*/
+
+    /// @dev reverts if bridge already contributed to quorum
+    error DUPLICATE_QUORUM_CALLER();
 }

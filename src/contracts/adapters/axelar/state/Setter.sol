@@ -18,11 +18,4 @@ contract Setter is State {
     function setGasService(address _gasService) internal {
         _state.gasService = _gasService;
     }
-
-    function setController(address _controller) internal {
-        if (_state.controller != address(0)) {
-            require(_state.controller == msg.sender);
-        }
-        _state.controller = _controller;
-    }
 }

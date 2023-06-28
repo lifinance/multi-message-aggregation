@@ -57,4 +57,11 @@ interface IGAC {
     /// @param _module is the address of the module
     /// @return bool indicating the validity of the module
     function isModule(address _module) external view returns (bool);
+
+    /// @dev returns if caller is a valid bridge adapter
+    /// @param _caller is the address of the caller
+    /// @return bool indicating the validity of the bridge adapter
+    function isCallerBridgeAdapter(
+        address _caller
+    ) external view returns (bool);
 }

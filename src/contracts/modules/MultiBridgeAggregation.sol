@@ -10,6 +10,8 @@ import {IGAC} from "../interfaces/IGAC.sol";
 
 import "forge-std/console.sol";
 
+/// app -> aggregator -> module -> adapter || adapter -> module -> aggregator -> app
+
 /// @title MultiBridgeAggregation
 /// @dev module contains all the logic to send and receive messages
 /// through multiple AMBs
@@ -26,6 +28,7 @@ contract MultiBridgeAggregation is IModule {
     mapping(address => uint256) public requiredQuorum;
     mapping(address => uint256[]) public messageBridges;
     mapping(bytes => mapping(bytes => uint256)) public reachedQuorum;
+    mapping(bytes => mapping(bytes => address[])) public quorumBridges;
     mapping(address => mapping(bytes => bytes)) public allowedRemote;
 
     /*///////////////////////////////////////////////////////////////
@@ -115,6 +118,10 @@ contract MultiBridgeAggregation is IModule {
         bytes memory _srcChainId,
         bytes memory _message
     ) external override {
+        if (!IGAC(gac).isCallerBridgeAdapter(msg.sender)) {
+            revert Error.INVALID_PREVILAGED_CALLER();
+        }
+
         /// @dev decode LIFI message
         LIFIMessage memory decodedMessage = abi.decode(_message, (LIFIMessage));
 
@@ -142,9 +149,19 @@ contract MultiBridgeAggregation is IModule {
             revert Error.INVALID_SOURCE_SENDER();
         }
 
+        if (
+            !_validateQuorumDuplicateCaller(
+                msg.sender,
+                quorumBridges[_srcChainId][decodedMessage.uniqueId]
+            )
+        ) {
+            revert Error.DUPLICATE_QUORUM_CALLER();
+        }
+
         uint256 currentQuorum = ++reachedQuorum[_srcChainId][
             decodedMessage.uniqueId
         ];
+        quorumBridges[_srcChainId][decodedMessage.uniqueId].push(msg.sender);
 
         /// @dev is quorum passed send message to user application
         if (currentQuorum >= requiredQuorum[receiverAddress]) {
@@ -154,5 +171,26 @@ contract MultiBridgeAggregation is IModule {
                 decodedMessage.message
             );
         }
+    }
+
+    /*///////////////////////////////////////////////////////////////
+                    INTERNAL HELPER FUNCTIONS
+    //////////////////////////////////////////////////////////////*/
+
+    function _validateQuorumDuplicateCaller(
+        address _caller,
+        address[] memory _prevCallers
+    ) internal pure returns (bool) {
+        for (uint256 i; i < _prevCallers.length; ) {
+            if (_caller == _prevCallers[i]) {
+                return false;
+            }
+
+            unchecked {
+                ++i;
+            }
+        }
+
+        return true;
     }
 }

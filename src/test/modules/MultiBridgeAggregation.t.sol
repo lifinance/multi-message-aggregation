@@ -36,7 +36,7 @@ contract MultiBridgeAggregationTest is Setup {
         vm.recordLogs();
         MockApp(mockApp[SRC_FORK_ID]).xSend{value: 1 ether}(
             abi.encode("POLYGON"),
-            abi.encode("1"),
+            abi.encode("test_test"),
             ""
         );
 
@@ -58,7 +58,10 @@ contract MultiBridgeAggregationTest is Setup {
         vm.selectFork(DST_FORK_ID);
 
         /// @dev asserting message delivery
-        assertEq(MockApp(mockApp[DST_FORK_ID]).message(), abi.encode("1"));
+        assertEq(
+            MockApp(mockApp[DST_FORK_ID]).message(),
+            abi.encode("test_test")
+        );
     }
 
     function _setConfigSrcChainAndDstChain() internal {
@@ -87,6 +90,7 @@ contract MultiBridgeAggregationTest is Setup {
         MockApp(mockApp[DST_FORK_ID]).setModuleConfig(
             3,
             abi.encode(
+                /// sender + receiver
                 abi.encodePacked(mockApp[SRC_FORK_ID], mockApp[DST_FORK_ID]),
                 abi.encode("ETHEREUM")
             )
