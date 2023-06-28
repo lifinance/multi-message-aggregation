@@ -164,7 +164,7 @@ contract MultiBridgeAggregation is IModule {
         quorumBridges[_srcChainId][decodedMessage.uniqueId].push(msg.sender);
 
         /// @dev is quorum passed send message to user application
-        if (currentQuorum >= requiredQuorum[receiverAddress]) {
+        if (currentQuorum == requiredQuorum[receiverAddress]) {
             IAggregator(aggregator).xReceive(
                 _srcChainId,
                 receiverAddress,
