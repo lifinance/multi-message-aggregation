@@ -9,7 +9,7 @@ contract Storage {
         /// @dev is the chainid of the amb
         mapping(bytes => uint256) inherentChainId;
         /// @dev is the reverse of `inherentChainId` mapping
-        mapping(uint256 => bytes) eipChainId;
+        mapping(uint256 => bytes) lifiChainId;
     }
 }
 

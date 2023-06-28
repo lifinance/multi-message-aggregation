@@ -12,18 +12,20 @@ contract Getter is State {
     }
 
     /// @dev retrieves the amb specific chain id
-    function getChainId(bytes memory _eipChainId) public view returns (uint16) {
-        return _state.inherentChainId[_eipChainId];
+    function getChainId(
+        bytes memory _lifiChainId
+    ) public view returns (uint16) {
+        return _state.inherentChainId[_lifiChainId];
     }
 
     /// @dev retrieves the eip specific chain id
     function getLIFIChainId(
         uint16 _ambChainId
     ) public view returns (bytes memory) {
-        return _state.eipChainId[_ambChainId];
+        return _state.lifiChainId[_ambChainId];
     }
 
-    /// @dev retrieves the eip specific chain id
+    /// @dev retrieves the gac address
     function getGac() public view returns (address) {
         return _state.gac;
     }

@@ -1,37 +1,37 @@
 // SPDX-License-Identifier: Apache-3.0
 pragma solidity ^0.8.19;
 
-import {Errors} from "../utils/Errors.sol";
 import {Getter} from "../state/Getter.sol";
 import {IMailbox} from "../interface/IMailbox.sol";
 import {IEIP6170} from "../../../interfaces/IEIP6170.sol";
 
-abstract contract SenderImpl is IEIP6170, Getter, Errors {
-    /// @dev see IEIP6170-{sendMessage}
+/// @title SenderImpl
+/// @dev sends a message from onechain to another using Hyperlane
+abstract contract SenderImpl is IEIP6170, Getter {
+    /// @inheritdoc IEIP6170
     function sendMessage(
         bytes memory _chainId,
-        bytes memory _receiver,
+        bytes memory,
         bytes memory _message,
-        bytes memory _data
+        bytes memory
     ) external payable override returns (bool) {
-        uint32 ambChainId = getChainId(_chainId);
-
-        /// @notice can be used as a mechanism to prevent messaging to chains if app
-        /// turns to remove them post deployment
-        if (ambChainId == 0) {
-            revert INVALID_RECEIVER_CHAIN();
-        }
+        uint32 hyperlaneChainId = getChainId(_chainId);
 
         /// @notice: no purpose to override gas in hyperlane
         /// note: using data to silence unused variable warning
         /// data_ will be for AMBs with custom overrides
-        _data;
         IMailbox(getMailbox()).dispatch(
-            ambChainId,
-            bytes32(_receiver),
+            hyperlaneChainId,
+            getTrustedRemote(hyperlaneChainId),
             _message
         );
-        emit MessageSent(_receiver, _chainId, _message, _data);
+
+        emit MessageSent(
+            abi.encode(getTrustedRemote(hyperlaneChainId)),
+            _chainId,
+            _message,
+            ""
+        );
 
         /// note: redundant return value; using this for now
         return true;

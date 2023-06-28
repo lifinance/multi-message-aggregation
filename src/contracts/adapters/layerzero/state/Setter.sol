@@ -7,9 +7,12 @@ import "./State.sol";
 /// @dev got all setter functions to update state of LayerZero adapter
 contract Setter is State {
     /// @dev sets the chain id
-    function setChainId(uint16 _ambChainId, bytes memory _eipChainId) internal {
-        _state.inherentChainId[_eipChainId] = _ambChainId;
-        _state.eipChainId[_ambChainId] = _eipChainId;
+    function setChainId(
+        uint16 _ambChainId,
+        bytes memory _lifiChainId
+    ) internal {
+        _state.inherentChainId[_lifiChainId] = _ambChainId;
+        _state.lifiChainId[_ambChainId] = _lifiChainId;
     }
 
     /// @dev sets the layerzero endpoint

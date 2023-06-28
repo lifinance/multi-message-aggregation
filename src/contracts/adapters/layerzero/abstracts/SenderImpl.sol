@@ -8,7 +8,7 @@ import {ILayerZeroEndpoint} from "../interface/ILayerZeroEndpoint.sol";
 /// @title SenderImpl
 /// @dev sends a message from onechain to another using LayerZero
 abstract contract SenderImpl is IEIP6170, Getter {
-    /// @dev see IEIP6170-{sendMessage}
+    /// @inheritdoc IEIP6170
     function sendMessage(
         bytes memory _chainId,
         bytes memory,

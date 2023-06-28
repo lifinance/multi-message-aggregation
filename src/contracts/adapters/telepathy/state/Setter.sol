@@ -3,9 +3,12 @@ pragma solidity ^0.8.19;
 import "./State.sol";
 
 contract Setter is State {
-    function setChainId(uint32 _ambChainId, bytes memory _eipChainId) internal {
-        _state.inherentChainId[_eipChainId] = _ambChainId;
-        _state.eipChainId[_ambChainId] = _eipChainId;
+    function setChainId(
+        uint32 _ambChainId,
+        bytes memory _lifiChainId
+    ) internal {
+        _state.inherentChainId[_lifiChainId] = _ambChainId;
+        _state.lifiChainId[_ambChainId] = _lifiChainId;
     }
 
     function setRouter(address router_) internal {

@@ -1,21 +1,32 @@
+/// SPDX-License-Identifier: Apache-3.0
 pragma solidity ^0.8.19;
 
 import "./State.sol";
 
+/// @title Setter
+/// @dev got all setter functions to update state of Hyperlane adapter
 contract Setter is State {
-    function setChainId(uint32 ambChainId_, bytes memory eipChainId_) internal {
-        _state.inherentChainId[eipChainId_] = ambChainId_;
-        _state.eipChainId[ambChainId_] = eipChainId_;
+    /// @dev sets the chain id
+    function setChainId(
+        uint32 _ambChainId,
+        bytes memory _lifiChainId
+    ) internal {
+        _state.inherentChainId[_lifiChainId] = _ambChainId;
+        _state.lifiChainId[_ambChainId] = _lifiChainId;
     }
 
-    function setMailbox(address mailbox_) internal {
-        _state.mailbox = mailbox_;
+    /// @dev sets the hyperlane mailbox
+    function setMailbox(address _mailbox) internal {
+        _state.mailbox = _mailbox;
     }
 
-    function setController(address controller_) internal {
-        if (_state.controller != address(0)) {
-            require(_state.controller == msg.sender);
-        }
-        _state.controller = controller_;
+    /// @dev sets the gac addresss
+    function setGac(address _gac) internal {
+        _state.gac = _gac;
+    }
+
+    /// @dev sets the trusted remote
+    function setTrustedRemote(uint32 _remoteChainId, bytes32 _path) internal {
+        _state.trustedRemoteLookup[_remoteChainId] = _path;
     }
 }

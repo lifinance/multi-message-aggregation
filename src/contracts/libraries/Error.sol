@@ -22,6 +22,9 @@ library Error {
     /// @dev reverts if the nonce/unique id is already used
     error USED_UNIQUE_ID();
 
+    /// @dev reverts if the caller is not hyperlane's mailbox
+    error NOT_HYPERLANE_MAILBOX();
+
     /*///////////////////////////////////////////////////////////////
                     ERROR CODES FOR AGGREGATOR
     //////////////////////////////////////////////////////////////*/

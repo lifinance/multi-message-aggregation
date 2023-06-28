@@ -96,8 +96,8 @@ contract MultiBridgeAggregation is IModule {
         /// FIXME: add validations
         for (uint256 i; i < bridgeIds.length; ) {
             IEIP6170(IGAC(gac).getBridgeAddress(bridgeIds[i])).sendMessage{
-                value: msg.value
-            }(
+                value: msg.value / bridgeIds.length
+            }( /// FIXME: come back to this later
                 _dstChainId,
                 allowedRemote[_user][_dstChainId],
                 abi.encode(messageToBeEncoded),

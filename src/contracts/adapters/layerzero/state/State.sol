@@ -12,7 +12,7 @@ contract Storage {
         /// @dev is the chainid of the amb
         mapping(bytes => uint16) inherentChainId;
         /// @dev is the reverse of `inherentChainId` mapping
-        mapping(uint16 => bytes) eipChainId;
+        mapping(uint16 => bytes) lifiChainId;
         /// @dev is the trusted remote mapping
         mapping(uint16 => bytes) trustedRemoteLookup;
         /// @dev maps used nonce

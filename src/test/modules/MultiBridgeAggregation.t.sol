@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity 0.8.19;
 
+import {Vm} from "forge-std/Test.sol";
+
+/// @dev imports from Pigeon Helper (Facilitate State Transfer Mocks)
 import {LayerZeroHelper} from "pigeon/layerzero/LayerZeroHelper.sol";
+import {HyperlaneHelper} from "pigeon/hyperlane/HyperlaneHelper.sol";
 
 import {Setup} from "../Setup.t.sol";
 import {MockApp} from "../mock/MockApp.sol";
 import {LIFIAggregator} from "../../contracts/Aggregator.sol";
-
-import "forge-std/console.sol";
 
 contract MultiBridgeAggregationTest is Setup {
     mapping(uint256 forkId => address mockApp) public mockApp;
@@ -32,20 +34,27 @@ contract MultiBridgeAggregationTest is Setup {
         vm.selectFork(SRC_FORK_ID);
 
         vm.recordLogs();
-
         MockApp(mockApp[SRC_FORK_ID]).xSend{value: 1 ether}(
             abi.encode("POLYGON"),
             abi.encode("1"),
             ""
         );
 
+        Vm.Log[] memory logs = vm.getRecordedLogs();
+
         LayerZeroHelper(bridgeHelper[SRC_FORK_ID][1]).help(
             LAYERZERO_POLYGON_ENDPOINT,
             500000,
             DST_FORK_ID,
-            vm.getRecordedLogs()
+            logs
         );
 
+        HyperlaneHelper(bridgeHelper[SRC_FORK_ID][2]).help(
+            HYPERLANE_MAILBOX,
+            HYPERLANE_MAILBOX,
+            DST_FORK_ID,
+            logs
+        );
         vm.selectFork(DST_FORK_ID);
 
         /// @dev asserting message delivery
@@ -55,10 +64,12 @@ contract MultiBridgeAggregationTest is Setup {
     function _setConfigSrcChainAndDstChain() internal {
         vm.selectFork(SRC_FORK_ID);
 
-        uint256[] memory bridges = new uint256[](1);
+        uint256[] memory bridges = new uint256[](2);
         bridges[0] = 1;
+        bridges[1] = 2;
 
         MockApp(mockApp[SRC_FORK_ID]).setConfig();
+        MockApp(mockApp[SRC_FORK_ID]).setModuleConfig(1, abi.encode(2)); // quorum = 2
         MockApp(mockApp[SRC_FORK_ID]).setModuleConfig(2, abi.encode(bridges));
         MockApp(mockApp[SRC_FORK_ID]).setModuleConfig(
             3,
@@ -71,6 +82,7 @@ contract MultiBridgeAggregationTest is Setup {
         vm.selectFork(DST_FORK_ID);
 
         MockApp(mockApp[DST_FORK_ID]).setConfig();
+        MockApp(mockApp[DST_FORK_ID]).setModuleConfig(1, abi.encode(2)); // quorum = 2
         MockApp(mockApp[DST_FORK_ID]).setModuleConfig(2, abi.encode(bridges));
         MockApp(mockApp[DST_FORK_ID]).setModuleConfig(
             3,

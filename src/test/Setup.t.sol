@@ -12,6 +12,7 @@ import {LIFIAggregator} from "../contracts/Aggregator.sol";
 import {MultiBridgeAggregation} from "../contracts/modules/MultiBridgeAggregation.sol";
 
 import {LayerZero} from "../contracts/adapters/layerzero/LayerZero.sol";
+import {Hyperlane} from "../contracts/adapters/hyperlane/Hyperlane.sol";
 
 /// @dev tests setup is established between ETHEREUM & POLYGON
 /// @dev supports LayerZero & Hyperlane through Pigeon
@@ -64,6 +65,7 @@ abstract contract Setup is Test {
         _createContract(DST_FORK_ID, LAYERZERO_POLYGON_ENDPOINT);
 
         _configureLayerZeroRemotes();
+        _configureHyperlaneRemotes();
     }
 
     /*///////////////////////////////////////////////////////////////
@@ -111,10 +113,23 @@ abstract contract Setup is Test {
             )
         );
 
-        /// @dev add new bridge to gac
+        /// @dev deploy Hyperlane adapter
+        bridgeAdapter[forkid][2] = address(
+            new Hyperlane(
+                HYPERLANE_MAILBOX,
+                contractAddress[forkid][abi.encode("GAC")]
+            )
+        );
+
+        /// @dev add new bridges to gac
         GAC(contractAddress[forkid][abi.encode("GAC")]).configureNewBridge(
             1,
             bridgeAdapter[forkid][1]
+        );
+
+        GAC(contractAddress[forkid][abi.encode("GAC")]).configureNewBridge(
+            2,
+            bridgeAdapter[forkid][2]
         );
 
         /// @dev initialize both available chains
@@ -124,6 +139,15 @@ abstract contract Setup is Test {
         );
         LayerZero(bridgeAdapter[forkid][1]).initializeChain(
             109,
+            abi.encode("POLYGON")
+        );
+
+        Hyperlane(bridgeAdapter[forkid][2]).initializeChain(
+            1,
+            abi.encode("ETHEREUM")
+        );
+        Hyperlane(bridgeAdapter[forkid][2]).initializeChain(
+            137,
             abi.encode("POLYGON")
         );
     }
@@ -148,5 +172,25 @@ abstract contract Setup is Test {
                 bridgeAdapter[DST_FORK_ID][1]
             )
         );
+    }
+
+    function _configureHyperlaneRemotes() internal {
+        vm.selectFork(SRC_FORK_ID);
+
+        Hyperlane(bridgeAdapter[SRC_FORK_ID][2]).configureTrustedRemote(
+            137,
+            addressToBytes32(bridgeAdapter[DST_FORK_ID][2])
+        );
+
+        vm.selectFork(DST_FORK_ID);
+
+        Hyperlane(bridgeAdapter[DST_FORK_ID][2]).configureTrustedRemote(
+            1,
+            addressToBytes32(bridgeAdapter[SRC_FORK_ID][2])
+        );
+    }
+
+    function addressToBytes32(address _addr) internal pure returns (bytes32) {
+        return bytes32(uint256(uint160(_addr)));
     }
 }

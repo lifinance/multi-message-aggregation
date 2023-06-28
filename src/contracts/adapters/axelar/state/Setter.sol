@@ -5,10 +5,10 @@ import "./State.sol";
 contract Setter is State {
     function setChainId(
         string memory _ambChainId,
-        bytes memory _eipChainId
+        bytes memory _lifiChainId
     ) internal {
-        _state.inherentChainId[_eipChainId] = _ambChainId;
-        _state.eipChainId[_ambChainId] = _eipChainId;
+        _state.inherentChainId[_lifiChainId] = _ambChainId;
+        _state.lifiChainId[_ambChainId] = _lifiChainId;
     }
 
     function setGateway(address _gateway) internal {
