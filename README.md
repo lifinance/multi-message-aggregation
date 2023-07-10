@@ -1,8 +1,8 @@
 
-# LI.FI Arbitrary Message Aggregator
+# LI.FI Multi Message Aggregator
 
 ## Background
-LI.FI Arbitrary Message Aggregator (AMA) is a cross-chain Arbitrary Message Bridge (AMB) aggregator. The communication layer underpinning different blockchains are heavily conflicting at their interface level. LI.FI aggregator aims to provide a common yet simpler interface for developers to build cross-chain applications in a more modular & secure approach.
+LI.FI Multi Message Aggregator (AMA) is a cross-chain Arbitrary Message Bridge (AMB) aggregator. The communication layer underpinning different blockchains are heavily conflicting at their interface level. LI.FI aggregator aims to provide a common yet simpler interface for developers to build cross-chain applications in a more modular & secure approach.
 
 This project inherits part of its architecture from [Kydo's MMA Implementation](https://github.com/MultiMessageAggregation/multibridge)
 
